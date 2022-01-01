@@ -2,25 +2,34 @@ import numpy as np
 
 
 class Piece(object):
-    def __init__(self, color: str) -> None:
+
+    def __init__(self, color: str, position: tuple) -> None:
         super().__init__()
         assert color in ('w', 'b'), "Piece color must be 'b' or 'w'."
         self.color = color
         self.repr = ''
+        self.position = position
     
-    def isLegal(self, start_pos:tuple, end_pos:tuple) -> bool:
+
+    def isLegal(self, start_pos: tuple, end_pos: tuple) -> bool:
         return True
+
+    
+    def setPosition(self, position: tuple) -> None:
+        self.position = position
+
 
     def __str__(self) -> str:
         return self.repr
+
 
     def __repr__(self) -> str:
         return self.repr
 
 
 class Pawn(Piece):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, position: tuple) -> None:
+        super().__init__(color, position)
         self.repr = self.color + 'P'
 
     def isLegal(self, start_pos: tuple, end_pos: tuple) -> bool:
@@ -33,8 +42,8 @@ class Pawn(Piece):
 
 
 class Knight(Piece):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, position: tuple) -> None:
+        super().__init__(color, position)
         self.repr = self.color + 'C'
 
     def isLegal(self, start_pos: tuple, end_pos: tuple) -> bool:
@@ -46,8 +55,8 @@ class Knight(Piece):
 
 
 class Bishop(Piece):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, position: tuple) -> None:
+        super().__init__(color, position)
         self.repr = self.color + 'B'
 
     def isLegal(self, start_pos: tuple, end_pos: tuple) -> bool:
@@ -57,9 +66,10 @@ class Bishop(Piece):
 
 
 class Rook(Piece):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, position: tuple) -> None:
+        super().__init__(color, position)
         self.repr = self.color + 'R'
+        self.hasMoved = False
 
     def isLegal(self, start_pos: tuple, end_pos: tuple) -> bool:
         dx = np.abs(end_pos[0] - start_pos[0])
@@ -70,8 +80,8 @@ class Rook(Piece):
 
 
 class Queen(Piece):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, position: tuple) -> None:
+        super().__init__(color, position)
         self.repr = self.color + 'Q'
 
     def isLegal(self, start_pos: tuple, end_pos: tuple) -> bool:
@@ -83,9 +93,10 @@ class Queen(Piece):
 
 
 class King(Piece):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, position: tuple) -> None:
+        super().__init__(color, position)
         self.repr = self.color + 'Q'
+        self.hasMoved = False
 
     def isLegal(self, start_pos: tuple, end_pos: tuple) -> bool:
         dx = np.abs(end_pos[0] - start_pos[0])
