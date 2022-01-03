@@ -1,6 +1,8 @@
 import numpy as np
 from pieces import Pawn, Rook, Knight, Bishop, King, Queen
 
+EMPTY_INDICATOR = 0
+
 
 class Board(object):
 
@@ -8,7 +10,7 @@ class Board(object):
         
         super().__init__()
         self.state = np.empty(shape=(8,8))
-        self.state[:,:] = np.nan
+        self.state[:,:] = EMPTY_INDICATOR
         self.wturn = True
         self.wpieces = []
         self.bpieces = []
@@ -63,16 +65,30 @@ class Board(object):
         ind1 = "12345678".index(start_pos[1])
         eind0 = "abcdefgh".index(end_pos[0])
         eind1 = "12345678".index(end_pos[1])
-        piece = self.state[ind0][ind1]
+        piece = self.state[ind0, ind1]
         
         is_legal = start_pos != end_pos # Isn't same position
         is_legal = is_legal and self._checkMoveFormat(start_pos) and self._checkMoveFormat(end_pos) #Legal format
         is_legal = is_legal and piece.isLegal((ind0, ind1), (eind0, eind1)) #Piece can move that way
+  
+        if eind0 == ind0: # Vertical moves
+            for index in range(min(ind1, eind1) + 1, max(ind1, eind1)):
+                islegal = islegal and self.state[ind0, index] == EMPTY_INDICATOR
 
-        if type(piece) != Knight: #No pieces in the way
-            
-            
-            True
+        elif eind1 == ind1: # Horizontal moves
+            for index in range(min(ind0, eind0) + 1, max(ind0, eind0)):
+                islegal = islegal and self.state[index, ind1] == EMPTY_INDICATOR
+
+        elif np.abs(eind1 - ind1) == np.abs(eind0 - ind0): # Diagonal moves
+            h_range = range(ind0, eind0) if ind0 < eind0 else reversed(range(ind0, eind0))
+            v_range = range(ind1, eind1) if ind1 < eind1 else reversed(range(ind1, eind1))
+
+            for i in zip(h_range, v_range):
+                islegal = islegal and self.state[i] == EMPTY_INDICATOR
+
+        # Is not moving into check
+
+
 
 
 
@@ -80,9 +96,11 @@ class Board(object):
         #TODO: Finish
         return is_legal
 
+
     def _checkMoveFormat(self, move: str) -> bool:
         
         return len(move) == 2 and  move[0] in "abcdefgh" or move[1] in "12345678"
+
 
     def _addPiece(self, piece) -> None:
         
@@ -93,4 +111,19 @@ class Board(object):
 
         pos = piece.position
         self.state[pos[0], pos[1]] = piece
+
+    @classmethod
+    def _isCheck(self, color: str, new_board: np.ndarray) -> bool:
+        
+        for ind0 in range(8):
+            for ind1 in range(8):
+                curr_piece = new_board[ind0, ind1]
+
+                if type(curr_piece) == King and curr_piece.color == color:
+                    break
+        
+        
+        
+        
+        pass
         
