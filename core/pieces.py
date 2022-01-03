@@ -33,7 +33,7 @@ class Pawn(Piece):
         self.repr = self.color + 'P'
 
     def isLegal(self, start_pos: tuple, end_pos: tuple) -> bool:
-        if (end_pos[1] - start_pos[1]) == 1 and self.color == 'w':
+        if (end_pos[1] - start_pos[1]) == 1 and self.color == 'w': #Takes & en passant
             return True
         elif (end_pos[1] - start_pos[1]) == -1 and self.color == 'b':
             return True
