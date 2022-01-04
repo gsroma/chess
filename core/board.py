@@ -36,10 +36,10 @@ class Board(object):
         self._addPiece(Knight('b', (1, 7)))
         self._addPiece(Knight('b', (6, 7)))
 
-        self._addPiece(Bishop('w', (1, 0)))
-        self._addPiece(Bishop('w', (6, 0)))
-        self._addPiece(Bishop('b', (1, 7)))
-        self._addPiece(Bishop('b', (6, 7)))
+        self._addPiece(Bishop('w', (2, 0)))
+        self._addPiece(Bishop('w', (5, 0)))
+        self._addPiece(Bishop('b', (2, 7)))
+        self._addPiece(Bishop('b', (5, 7)))
 
         self._addPiece(Queen('w', (3, 0)))
         self._addPiece(Queen('b', (3, 7)))
@@ -61,6 +61,7 @@ class Board(object):
 
     def _isPromotion(self, end_pos: tuple) -> bool:
         pass
+
 
     def _isLegal(self, start_pos: str, end_pos: str) -> bool:
         
@@ -90,13 +91,14 @@ class Board(object):
                 islegal = islegal and self.state[i] == EMPTY_INDICATOR
 
         # Is not moving into check
+        color = piece.color
 
+        new_board = self.state.copy()
+        new_board[ind0, ind1] = EMPTY_INDICATOR
+        new_board[eind0, eind1] = piece
 
+        islegal = islegal and not self._isCheck(color, new_board)
 
-
-
-       
-        #TODO: Finish
         return is_legal
 
 
@@ -155,7 +157,7 @@ class Board(object):
                 elif type(piece) in (Rook, Queen):
                     return True
  
-        for index in range(ind1 + 1, 8): # Check UP
+        for index in range(ind1 + 1, 8): # Check up
             piece = board[ind0, index]
 
             if piece != EMPTY_INDICATOR:
@@ -165,21 +167,70 @@ class Board(object):
                 elif type(piece) in (Rook, Queen):
                     return True
 
-        for iterator in range(1, 8 - (max(ind0, ind1))):
+
+        for iterator in range(1, min(8 - ind0, 8 - ind1)): # Diagonal (1, 1)
             piece = board[ind0 + iterator, ind1 + iterator]
             
             if piece != EMPTY_INDICATOR:
                 if piece.color == color:
                     break
-
-            elif type(piece) in (Rook, Queen) or (type(piece) == Pawn and iterator == 1):
+            elif type(piece) in (Bishop, Queen) or (type(piece) == Pawn and iterator == 1):
                 return True
 
-                
-                    # ind0, ind1 -> king coordinates
+        for iterator in range(1, min(ind0, ind1)): # Diagonal (-1, -1)
+            piece = board[ind0 - iterator, ind1 - iterator]
+            
+            if piece != EMPTY_INDICATOR:
+                if piece.color == color:
+                    break
+            elif type(piece) in (Bishop, Queen) or (type(piece) == Pawn and iterator == 1):
+                return True                
+                       
+        for iterator in range(1, min(8 - ind0, ind1)): # Diagonal (1, -1)
+            piece = board[ind0 + iterator, ind1 - iterator]
+            
+            if piece != EMPTY_INDICATOR:
+                if piece.color == color:
+                    break
+            elif type(piece) in (Bishop, Queen) or (type(piece) == Pawn and iterator == 1):
+                return True
 
+        for iterator in range(1, min(ind0, 8 - ind1)): # Diagonal (-1, 1)
+            piece = board[ind0 - iterator, ind1 + iterator]
+            
+            if piece != EMPTY_INDICATOR:
+                if piece.color == color:
+                    break
+            elif type(piece) in (Bishop, Queen) or (type(piece) == Pawn and iterator == 1):
+                return True
+        
+        
+        positions = np.array([ind0, ind1])
+        k_deltas = np.array([[-2, -1],
+                            [-2, 1],
+                            [-1, -2],
+                            [-1, 2],
+                            [1, -2],
+                            [1, 2],
+                            [2, -1],
+                            [2, 1]])
+                            
+        positions = positions + k_deltas
+        mask = np.logical_and(0 <= positions, 7 >= positions)
+        mask = mask.all(axis = 1)
+        positions = positions[mask].reshape((-1, 2))
 
+        for position in positions:
+            piece = board[position]
+            if type(piece) == Knight and piece.color != color:
+                return True
+
+        return False
         
+
+    def _allLegalMoves(self, color: str, board: np.ndarray) -> list:
         
-        
-        pass
+        pieces = self.wpieces if color == 'w' else self.bpieces
+
+        for piece in pieces:
+                pass
