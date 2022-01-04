@@ -1,4 +1,7 @@
+from typing import Iterator
 import numpy as np
+import itertools
+
 from pieces import Pawn, Rook, Knight, Bishop, King, Queen
 
 EMPTY_INDICATOR = 0
@@ -113,17 +116,70 @@ class Board(object):
         self.state[pos[0], pos[1]] = piece
 
     @classmethod
-    def _isCheck(self, color: str, new_board: np.ndarray) -> bool:
-        
-        for ind0 in range(8):
+    def _isCheck(self, color: str, board: np.ndarray) -> bool:
+
+        for ind0 in range(8): # Get king
             for ind1 in range(8):
-                curr_piece = new_board[ind0, ind1]
+                curr_piece = board[ind0, ind1]
 
                 if type(curr_piece) == King and curr_piece.color == color:
                     break
         
+        for index in reversed(range(0, ind0)): # Check left
+            piece = board[index, ind1]
+
+            if piece != EMPTY_INDICATOR:
+                if piece.color == color:
+                    break
+
+                elif type(piece) in (Rook, Queen):
+                    return True
+
+        for index in range(ind0 + 1, 8): # Check right
+            piece = board[index, ind1]
+
+            if piece != EMPTY_INDICATOR:
+                if piece.color == color:
+                    break
+
+                elif type(piece) in (Rook, Queen):
+                    return True
+
+        for index in reversed(range(0, ind1)): # Check down
+            piece = board[ind0, index]
+
+            if piece != EMPTY_INDICATOR:
+                if piece.color == color:
+                    break
+
+                elif type(piece) in (Rook, Queen):
+                    return True
+ 
+        for index in range(ind1 + 1, 8): # Check UP
+            piece = board[ind0, index]
+
+            if piece != EMPTY_INDICATOR:
+                if piece.color == color:
+                    break
+
+                elif type(piece) in (Rook, Queen):
+                    return True
+
+        for iterator in range(1, 8 - (max(ind0, ind1))):
+            piece = board[ind0 + iterator, ind1 + iterator]
+            
+            if piece != EMPTY_INDICATOR:
+                if piece.color == color:
+                    break
+
+            elif type(piece) in (Rook, Queen) or (type(piece) == Pawn and iterator == 1):
+                return True
+
+                
+                    # ind0, ind1 -> king coordinates
+
+
         
         
         
         pass
-        
